@@ -1,0 +1,164 @@
+#:kivy 2.2.1
+MameWidget:
+<MameWidget>:
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.size
+        GridLayout:
+            cols:1
+            rows:3
+            #-----------------------------------------------------------------------
+            # 上段ボタンメニュー
+            GridLayout:
+                size_hint_y:0.1
+                cols:10
+                rows:1
+                DataLabel:
+                    size_hint_x:0.1
+                    text:"サイズ"
+                    background_color: .1,.1,.5,1
+                ToggleButton:
+                    size_hint_x:0.1
+                    group:"size"
+                    text:"8x16"
+                    on_press:root.set_matrix_size(8,16)
+                ToggleButton:
+                    group:"size"
+                    size_hint_x:0.1
+                    text:"16x16"
+                    state:"down"
+                    on_press:root.set_matrix_size(16,16)
+                ToggleButton:
+                    size_hint_x:0.1
+                    group:"size"
+                    text:"32x32"
+                    on_press:root.set_matrix_size(32,32)
+                DataLabel:
+                    size_hint_x:0.1
+                    text:"ペン"
+                    background_color: .1,.5,.1,1
+                ToggleButton:
+                    size_hint_x:0.1
+                    group:"pen"
+                    text:"白"
+                    state:"down"
+                    on_press:root.set_color(7)
+                ToggleButton:
+                    size_hint_x:0.1
+                    group:"pen"
+                    text:"黒"
+                    on_press:root.set_color(0)
+                Button:
+                    size_hint_x:0.1
+                    text: "反転"
+                    on_release: root.invert_colors()
+                Button:
+                    size_hint_x:0.1
+                    text: "消去"
+                    on_release: root.confirm_clear_canvas()
+                Button:
+                    size_hint_x:0.1
+                    background_color: .1,.1,.4, 1
+                    text: "閉じる"
+                    on_press: root.exit_dialog()
+            #-----------------------------------------------------------------------
+            # メイン
+            GridLayout:
+                size_hint_y:0.8
+                cols:3
+                rows:1
+                # ドットマトリックス
+                DotMatrix:
+                    size_hint_x:0.6
+                    id:id_main_mx
+                # データ変換
+                GridLayout:
+                    size_hint_x:0.1
+                    cols:1
+                    rows:2
+                    # ドットマトリックス -> 16進数（自動）
+                    DataLabel:
+                        text:"(自動)>"
+                        background_color: .2,.2,.2, 1
+                    # 16進数 -> ドットマトリックス　ボタン
+                    Button:
+                        text:"<"
+                        on_press:root.set_data()
+                GridLayout:
+                    size_hint_x:0.3
+                    cols:1
+                    rows:4
+                    # 縮小イメージ表示
+                    GridLayout:
+                        size_hint_y:0.2
+                        cols:2
+                        rows:1
+                        DataLabel:
+                            size_hint_x:0.6
+                            text:"縮小イメージ"
+                            text_size: self.width, None
+                            background_color: .1,.2,.3, 1
+                        DotMatrix:
+                            size_hint_x:0.4
+                            id:id_prev_mx
+                    # ドットデータの16進数表示
+                    TextInput:
+                        size_hint_y:0.7
+                        id:id_data   
+                        background_color:.2,.2,.2,1
+                        foreground_color:1,1,1
+                        font_size: 10
+                        text_size: self.width, None
+                    Button:
+                        size_hint_y:0.1
+                        text:"クリップボードにコピー"
+                        on_press:root.copy_data()
+            #-----------------------------------------------------------------------
+            # メッセージ
+            DataLabel:
+                size_hint_y:0.1
+                id:id_msg
+                text_size: self.width, None
+                background_color: .1,.2,.2, 1
+#-----------------------------------------------------------------------
+# Label用背景色定義
+<BackgroundColor@Widget>
+    background_color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+# 背景色指定可能なラベル
+<DataLabel@Label+BackgroundColor>:
+#-----------------------------------------------------------------------
+# キャンバス初期化確認ダイアログ
+<OkCancelDialog>:
+    title: 'キャンバスを初期化しますか？'
+    size_hint: 0.6,0.2
+    BoxLayout:
+        orientation: 'horizontal'
+        Button:
+            id:id_ok
+            text:"初期化します"
+            on_release:root.dismiss()
+        Button:
+            text:"キャンセル"
+            on_release:root.dismiss()
+
+#-----------------------------------------------------------------------
+# 終了確認ダイアログ
+<PopupExitDialog>:
+    title: 'プログラムを終了しますか？'
+    size_hint: 0.6, 0.2
+    BoxLayout:
+        orientation: 'horizontal'
+        Button:
+            font_size:self.width/14
+            text: '終了します'
+            on_release: root.exec_exit()
+        Button:
+            font_size:self.width/14
+            text: 'キャンセル'
+            on_press: root.dismiss()
